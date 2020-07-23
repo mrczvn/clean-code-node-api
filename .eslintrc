@@ -1,5 +1,6 @@
 {
-  "extends": "airbnb-base",
+  "extends": ["airbnb-base", "prettier"],
+  "plugins": ["prettier"],
   "rules": {
     "linebreak-style": ["error", "windows"],
     "arrow-body-style": ["error", "as-needed"]
