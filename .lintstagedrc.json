@@ -1,5 +1,5 @@
 {
   "lint-staged": {
-    "*.js": ["eslint", "prettier --write"]
+    "*.js": ["eslint", "prettier --write", "npm run test:staged", "git add"]
   }
 }
