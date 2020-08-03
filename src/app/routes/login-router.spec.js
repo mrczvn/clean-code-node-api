@@ -1,5 +1,5 @@
-const loginRouter = require('../app/routers/user');
-const missingParamError = require('../helpers/missing-param-error');
+const loginRouter = require('./login-router');
+const missingParamError = require('../../util/missing-param-error');
 
 describe('Login Route', () => {
   test('Should return 400 if no email is provided', () => {

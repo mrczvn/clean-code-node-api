@@ -6,7 +6,9 @@ const loginRouter = () => {
       if (!httpRequest || !httpRequest.body) {
         return httpResponse().serverError();
       }
+
       const { email, password } = httpRequest.body;
+
       if (!email) {
         return httpResponse().badRequest('email');
       }

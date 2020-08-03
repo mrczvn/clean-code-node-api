@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll",
-    "test:staged": "jest"
+    "test": "jest --colors --noStackTrace --passWithNoTests --runInBand --watchAll",
+    "test:staged": "jest",
+    "test:integration": "npm test --watch -c test/integration/jest-config.js"
   },
   "keywords": [],
   "author": "",

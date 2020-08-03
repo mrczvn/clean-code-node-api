@@ -3,6 +3,7 @@
   "plugins": ["prettier"],
   "rules": {
     "linebreak-style": ["error", "windows"],
-    "arrow-body-style": ["error", "as-needed"]
+    "consistent-return": "off",
+    "no-undef": "off"
   }
 }

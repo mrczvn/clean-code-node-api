@@ -1,4 +1,4 @@
-const missingParamError = require('./missing-param-error');
+const missingParamError = require('../util/missing-param-error');
 
 const httpResponse = () => {
   return {
