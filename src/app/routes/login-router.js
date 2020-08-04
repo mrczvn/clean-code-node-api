@@ -18,9 +18,7 @@ function loginRouter(authUseCase) {
 
       authUseCase.auth({ email, password });
 
-      return {
-        statusCode: 401,
-      };
+      return httpResponse().unauthorizedError();
     },
   };
 }
