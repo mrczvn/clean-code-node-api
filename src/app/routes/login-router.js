@@ -1,8 +1,6 @@
 const httpResponse = require('../../helpers/http-response');
 
 function loginRouter(authUseCase) {
-  // this.authUseCase = authUseCase;
-
   return {
     route: (httpRequest) => {
       if (!httpRequest || !httpRequest.body) {
@@ -19,6 +17,10 @@ function loginRouter(authUseCase) {
       }
 
       authUseCase.auth({ email, password });
+
+      return {
+        statusCode: 401,
+      };
     },
   };
 }
