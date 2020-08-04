@@ -1,5 +1,6 @@
 const missingParamError = require('../util/missing-param-error');
 const unauthorizedError = require('../util/unauthorized-error');
+const serverError = require('../util/server-error');
 
 const httpResponse = () => {
   return {
@@ -7,7 +8,7 @@ const httpResponse = () => {
       return { statusCode: 400, body: missingParamError(paramName) };
     },
     serverError: () => {
-      return { statusCode: 500 };
+      return { statusCode: 500, body: serverError() };
     },
     unauthorizedError: () => {
       return { statusCode: 401, body: unauthorizedError() };
