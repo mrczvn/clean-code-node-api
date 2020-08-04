@@ -12,8 +12,8 @@ const httpResponse = () => {
     unauthorizedError: () => {
       return { statusCode: 401, body: unauthorizedError() };
     },
-    ok: () => {
-      return { statusCode: 200 };
+    ok: (data) => {
+      return { statusCode: 200, body: data };
     },
   };
 };

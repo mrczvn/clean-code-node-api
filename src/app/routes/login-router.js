@@ -25,7 +25,7 @@ function loginRouter(authUseCase) {
 
       if (!accessToken) return httpResponse().unauthorizedError();
 
-      return httpResponse().ok();
+      return httpResponse().ok({ accessToken });
     },
   };
 }
