@@ -2,7 +2,7 @@ const httpResponse = require('../../helpers/http-response');
 
 function loginRouter(authUseCase) {
   return {
-    route: (httpRequest) => {
+    route: async (httpRequest) => {
       try {
         const { email, password } = httpRequest.body;
 
@@ -13,7 +13,7 @@ function loginRouter(authUseCase) {
           return httpResponse().badRequest('password');
         }
 
-        const accessToken = authUseCase.auth({ email, password });
+        const accessToken = await authUseCase.auth({ email, password });
 
         if (!accessToken) return httpResponse().unauthorizedError();
 
