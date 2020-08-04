@@ -21,9 +21,11 @@ function loginRouter(authUseCase) {
         return httpResponse().badRequest('password');
       }
 
-      authUseCase.auth({ email, password });
+      const accessToken = authUseCase.auth({ email, password });
 
-      return httpResponse().unauthorizedError();
+      if (!accessToken) return httpResponse().unauthorizedError();
+
+      return httpResponse().ok();
     },
   };
 }
