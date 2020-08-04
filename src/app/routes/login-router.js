@@ -1,4 +1,5 @@
 const httpResponse = require('../../helpers/http-response');
+const missingParamError = require('../../util/missing-param-error');
 
 function loginRouter(authUseCase) {
   return {
@@ -7,10 +8,11 @@ function loginRouter(authUseCase) {
         const { email, password } = httpRequest.body;
 
         if (!email) {
-          return httpResponse().badRequest('email');
+          return httpResponse().badRequest(missingParamError('email'));
         }
+
         if (!password) {
-          return httpResponse().badRequest('password');
+          return httpResponse().badRequest(missingParamError('password'));
         }
 
         const accessToken = await authUseCase.auth({ email, password });

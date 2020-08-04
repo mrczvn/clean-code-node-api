@@ -1,11 +1,10 @@
-const missingParamError = require('../util/missing-param-error');
 const unauthorizedError = require('../util/unauthorized-error');
 const serverError = require('../util/server-error');
 
 const httpResponse = () => {
   return {
-    badRequest: (paramName) => {
-      return { statusCode: 400, body: missingParamError(paramName) };
+    badRequest: (error) => {
+      return { statusCode: 400, body: error };
     },
     serverError: () => {
       return { statusCode: 500, body: serverError() };
