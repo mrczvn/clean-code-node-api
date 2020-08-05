@@ -1,3 +1,3 @@
 {
-  "*.js": ["eslint", "prettier --write", "npm run test:staged", "git add"]
+  "*.js": ["eslint", "npm run test:staged", "git add"]
 }
