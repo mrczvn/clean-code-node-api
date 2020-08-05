@@ -1,7 +1,8 @@
 const httpResponse = require('../../helpers/http-response');
 const missingParamError = require('../../util/missing-param-error');
+const invalidParamError = require('../../util/invalid-param-error');
 
-function loginRouter(authUseCase) {
+function loginRouter({ authUseCase, emailValidator }) {
   return {
     route: async (httpRequest) => {
       try {
@@ -9,6 +10,10 @@ function loginRouter(authUseCase) {
 
         if (!email) {
           return httpResponse().badRequest(missingParamError('email'));
+        }
+
+        if (!emailValidator.isValid(email)) {
+          return httpResponse().badRequest(invalidParamError('email'));
         }
 
         if (!password) {

@@ -1,10 +1,11 @@
 const loginRouter = require('./login-router');
 const missingParamError = require('../../util/missing-param-error');
 const unauthorizedError = require('../../util/unauthorized-error');
+const invalidParamError = require('../../util/invalid-param-error');
 const serverError = require('../../util/server-error');
 
 const makeAuthUseCase = () => {
-  const authUseCaseSpy = () => {
+  const AuthUseCaseSpy = () => {
     return {
       async auth({ email, password }) {
         this.email = email;
@@ -14,8 +15,11 @@ const makeAuthUseCase = () => {
       },
     };
   };
+  const authUseCaseSpy = AuthUseCaseSpy();
 
-  return authUseCaseSpy();
+  authUseCaseSpy.accessToken = 'any_token';
+
+  return authUseCaseSpy;
 };
 
 const makeAuthUseCaseWithError = () => {
@@ -30,16 +34,36 @@ const makeAuthUseCaseWithError = () => {
   return authUseCaseSpy();
 };
 
+const makeEmailValidator = () => {
+  const EmailValidatorSpy = () => {
+    return {
+      isValid(email) {
+        return this.isEmailValid;
+      },
+    };
+  };
+
+  const emailValidatorSpy = EmailValidatorSpy();
+
+  emailValidatorSpy.isEmailValid = true;
+
+  return emailValidatorSpy;
+};
+
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase();
 
-  authUseCaseSpy.accessToken = 'any_token';
+  const emailValidatorSpy = makeEmailValidator();
 
-  const sut = loginRouter(authUseCaseSpy);
+  const sut = loginRouter({
+    authUseCase: authUseCaseSpy,
+    emailValidator: emailValidatorSpy,
+  });
 
   return {
     sut,
     authUseCaseSpy,
+    emailValidatorSpy,
   };
 };
 
@@ -143,7 +167,7 @@ describe('Login Route', () => {
   });
 
   test('Should return 500 if no authUseCase is provided', async () => {
-    const sut = loginRouter();
+    const sut = loginRouter({ authUseCase: null });
 
     const httpRequest = {
       body: {
@@ -177,7 +201,7 @@ describe('Login Route', () => {
   test('Should return 500 if authUseCase throws', async () => {
     const authUseCaseSpy = makeAuthUseCaseWithError();
 
-    const sut = loginRouter(authUseCaseSpy);
+    const sut = loginRouter({ authUseCase: authUseCaseSpy });
 
     const httpRequest = {
       body: {
@@ -190,5 +214,23 @@ describe('Login Route', () => {
 
     expect(httpResponse.statusCode).toBe(500);
     expect(httpResponse.body).toEqual(serverError());
+  });
+
+  test('Should return 400 if no email is provided', async () => {
+    const { sut, emailValidatorSpy } = makeSut();
+
+    emailValidatorSpy.isEmailValid = false;
+
+    const httpRequest = {
+      body: {
+        email: 'invalid_email@email.com',
+        password: 'any_password',
+      },
+    };
+
+    const httpResponse = await sut.route(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body).toEqual(invalidParamError('email'));
   });
 });
