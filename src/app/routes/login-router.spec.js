@@ -39,6 +39,7 @@ const makeEmailValidator = () => {
     return {
       isValid(email) {
         this.email = email;
+
         return this.isEmailValid;
       },
     };
