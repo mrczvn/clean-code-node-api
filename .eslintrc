@@ -4,6 +4,7 @@
   "rules": {
     "linebreak-style": ["error", "windows"],
     "consistent-return": "off",
-    "no-undef": "off"
+    "no-undef": "off",
+    "no-unused-vars": "off"
   }
 }
