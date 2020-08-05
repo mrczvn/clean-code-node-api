@@ -1,5 +1,4 @@
-const unauthorizedError = require('../util/unauthorized-error');
-const serverError = require('../util/server-error');
+const { unauthorizedError, serverError } = require('../util');
 
 const httpResponse = () => {
   return {
