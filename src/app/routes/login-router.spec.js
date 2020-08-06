@@ -7,21 +7,21 @@ const {
 } = require('../../util');
 
 const makeAuthUseCase = () => {
-  const AuthUseCaseSpy = () => {
+  const authUseCaseSpy = () => {
     return {
       async auth({ email, password }) {
-        this.email = email;
-        this.password = password;
+        const isValidated = (token) => {
+          return { accessToken: token, email, password };
+        };
 
-        return this.accessToken;
+        if (email === 'invalid_email@mail.com') return isValidated(null);
+
+        return isValidated('any_token');
       },
     };
   };
-  const authUseCaseSpy = AuthUseCaseSpy();
 
-  authUseCaseSpy.accessToken = 'any_token';
-
-  return authUseCaseSpy;
+  return authUseCaseSpy();
 };
 
 const makeAuthUseCaseWithError = () => {
@@ -37,19 +37,17 @@ const makeAuthUseCaseWithError = () => {
 };
 
 const makeEmailValidator = () => {
-  const EmailValidatorSpy = () => {
+  const emailValidatorSpy = (validated = true) => {
     return {
       isValid(email) {
-        this.email = email;
+        const isValidated = (value) => value;
 
-        return this.isEmailValid;
+        if (validated) return isValidated(true);
+
+        return isValidated(false);
       },
     };
   };
-
-  const emailValidatorSpy = EmailValidatorSpy();
-
-  emailValidatorSpy.isEmailValid = true;
 
   return emailValidatorSpy;
 };
@@ -73,7 +71,7 @@ const makeSut = () => {
 
   const sut = loginRouter({
     authUseCase: authUseCaseSpy,
-    emailValidator: emailValidatorSpy,
+    emailValidator: emailValidatorSpy(),
   });
 
   return {
@@ -104,7 +102,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
       },
     };
 
@@ -133,29 +131,27 @@ describe('Login Route', () => {
   });
 
   test('Should call authUseCase with correct params', async () => {
-    const { sut, authUseCaseSpy } = makeSut();
+    const { sut } = makeSut();
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
 
-    await sut.route(httpRequest);
+    const httpResponse = await sut.route(httpRequest);
 
-    expect(authUseCaseSpy.email).toBe(httpRequest.body.email);
-    expect(authUseCaseSpy.password).toBe(httpRequest.body.password);
+    expect(httpResponse.email).toBe(httpRequest.body.email);
+    expect(httpResponse.password).toBe(httpRequest.body.password);
   });
 
   test('Should return 401 when invalid credentials are provided', async () => {
-    const { sut, authUseCaseSpy } = makeSut();
-
-    authUseCaseSpy.accessToken = null;
+    const { sut } = makeSut();
 
     const httpRequest = {
       body: {
-        email: 'invalid_email@email.com',
+        email: 'invalid_email@mail.com',
         password: 'invalid_password',
       },
     };
@@ -167,19 +163,21 @@ describe('Login Route', () => {
   });
 
   test('Should return 200 when valid credentials are provided', async () => {
-    const { sut, authUseCaseSpy } = makeSut();
+    const { sut } = makeSut();
+
+    const accessToken = 'any_token';
 
     const httpRequest = {
       body: {
-        email: 'valid_email@email.com',
-        password: 'valid_password',
+        email: 'any_email@mail.com',
+        password: 'any_password',
       },
     };
 
-    const httpResponse = await sut.route(httpRequest);
+    const { httpResponse } = await sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
-    expect(httpResponse.body.accessToken).toEqual(authUseCaseSpy.accessToken);
+    expect(httpResponse.body.accessToken).toEqual(accessToken);
   });
 
   test('Should return 500 if no authUseCase is provided', async () => {
@@ -187,7 +185,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -203,7 +201,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -221,7 +219,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -231,14 +229,17 @@ describe('Login Route', () => {
     expect(httpResponse.statusCode).toBe(500);
   });
 
-  test('Should return 400 if no email is provided', async () => {
-    const { sut, emailValidatorSpy } = makeSut();
+  test('Should return 400 if an invalid no email is provided', async () => {
+    const { emailValidatorSpy, authUseCaseSpy } = makeSut();
 
-    emailValidatorSpy.isEmailValid = false;
+    const sut = loginRouter({
+      authUseCase: authUseCaseSpy,
+      emailValidator: emailValidatorSpy(false),
+    });
 
     const httpRequest = {
       body: {
-        email: 'invalid_email@email.com',
+        email: 'invalid_email@mail.com',
         password: 'any_password',
       },
     };
@@ -256,7 +257,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -277,7 +278,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -300,7 +301,7 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
@@ -311,17 +312,17 @@ describe('Login Route', () => {
   });
 
   test('Should call emailValidator with correct email', async () => {
-    const { sut, emailValidatorSpy } = makeSut();
+    const { sut } = makeSut();
 
     const httpRequest = {
       body: {
-        email: 'any_email@email.com',
+        email: 'any_email@mail.com',
         password: 'any_password',
       },
     };
 
-    await sut.route(httpRequest);
+    const httpResponse = await sut.route(httpRequest);
 
-    expect(emailValidatorSpy.email).toBe(httpRequest.body.email);
+    expect(httpResponse.email).toBe(httpRequest.body.email);
   });
 });
