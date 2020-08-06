@@ -7,23 +7,26 @@ function loginRouter({ authUseCase, emailValidator }) {
       try {
         const { email, password } = httpRequest.body;
 
-        if (!email) {
+        if (!email)
           return httpResponse().badRequest(missingParamError('email'));
-        }
 
-        if (!emailValidator.isValid(email)) {
+        if (!emailValidator.isValid(email))
           return httpResponse().badRequest(invalidParamError('email'));
-        }
 
-        if (!password) {
+        if (!password)
           return httpResponse().badRequest(missingParamError('password'));
-        }
 
-        const accessToken = await authUseCase.auth({ email, password });
+        const authUseCaseResolved = await authUseCase.auth({ email, password });
+
+        const { accessToken } = authUseCaseResolved;
 
         if (!accessToken) return httpResponse().unauthorizedError();
 
-        return httpResponse().ok({ accessToken });
+        return {
+          httpResponse: httpResponse().ok({ accessToken }),
+          email: authUseCaseResolved.email,
+          password: authUseCaseResolved.password,
+        };
       } catch (error) {
         return httpResponse().serverError();
       }
