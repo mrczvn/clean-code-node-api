@@ -1,4 +1,4 @@
-const { unauthorizedError, serverError } = require('../util');
+const { unauthorizedError, serverError } = require('../../util');
 
 const httpResponse = () => {
   return {

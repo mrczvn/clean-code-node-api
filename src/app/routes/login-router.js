@@ -1,4 +1,4 @@
-const httpResponse = require('../../helpers/http-response');
+const httpResponse = require('../helpers/http-response');
 const { missingParamError, invalidParamError } = require('../../util');
 
 function loginRouter({ authUseCase, emailValidator }) {
