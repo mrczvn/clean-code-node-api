@@ -40,7 +40,7 @@ const makeAuthUseCaseWithError = () => {
 const makeEmailValidator = () => {
   const emailValidatorSpy = (validated = true) => {
     return {
-      isValid(email) {
+      isValid() {
         const isValidated = (value) => value;
 
         if (validated) return isValidated(true);
