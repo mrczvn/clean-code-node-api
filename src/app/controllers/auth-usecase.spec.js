@@ -1,7 +1,9 @@
+const { missingParamError } = require('../../util');
+
 const authUseCase = () => {
   return {
     auth: async (email) => {
-      if (!email) throw new Error();
+      if (!email) return missingParamError('email');
     },
   };
 };
@@ -12,6 +14,6 @@ describe('Auth UseCase', () => {
 
     const promise = sut.auth();
 
-    expect(promise).rejects.toThrow();
+    expect(promise).rejects.toThrow(missingParamError('email'));
   });
 });
