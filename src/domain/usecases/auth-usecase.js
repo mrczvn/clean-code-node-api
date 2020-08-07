@@ -7,9 +7,9 @@ const authUseCase = (loadUserByEmailRepository) => {
 
       if (!password) return missingParamError('password');
 
-      const user = await loadUserByEmailRepository.load(email);
+      const user = await loadUserByEmailRepository.load({ email, password });
 
-      if (!user.accessToken) return null;
+      if (!user.accessToken) return { email: user.email, accessToken: null };
 
       return {
         email: user.email,

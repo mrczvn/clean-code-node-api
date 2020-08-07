@@ -4,12 +4,16 @@ const authUseCase = require('./auth-usecase');
 const makeSut = () => {
   const LoadUserByEmailRepositorySpy = () => {
     return {
-      load: async (email) => {
+      load: async ({ email, password }) => {
         const isValid = (value) => {
           return { accessToken: value, email };
         };
 
-        if (email === 'invalid_email@mail.com') return isValid(null);
+        if (
+          email === 'invalid_email@mail.com' ||
+          password === 'invalid_password'
+        )
+          return isValid(null);
 
         return isValid(true);
       },
@@ -76,12 +80,23 @@ describe('Auth UseCase', () => {
     expect(promise).rejects.toThrow();
   });
 
-  test('Should return null if loadUserByEmailRepository returns null', async () => {
+  test('Should return null if an invalid email is provided', async () => {
     const { sut } = makeSut();
 
-    const accessToken = await sut.auth({
+    const { accessToken } = await sut.auth({
       email: 'invalid_email@mail.com',
       password: 'any_password',
+    });
+
+    expect(accessToken).toBeNull();
+  });
+
+  test('Should return null if an invalid password is provided', async () => {
+    const { sut } = makeSut();
+
+    const { accessToken } = await sut.auth({
+      email: 'invalid_email@mail.com',
+      password: 'invalid_password',
     });
 
     expect(accessToken).toBeNull();
