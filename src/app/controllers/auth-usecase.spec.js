@@ -1,11 +1,5 @@
 const { missingParamError } = require('../../util');
 
-const LoadUserByEmailRepositorySpy = () => {
-  return {
-    load: async (email) => email,
-  };
-};
-
 const authUseCase = (loadUserByEmailRepository) => {
   return {
     auth: async ({ email, password }) => {
@@ -20,9 +14,26 @@ const authUseCase = (loadUserByEmailRepository) => {
   };
 };
 
+const makeSut = () => {
+  const LoadUserByEmailRepositorySpy = () => {
+    return {
+      load: async (email) => email,
+    };
+  };
+
+  const loadUserByEmailRepository = LoadUserByEmailRepositorySpy();
+
+  const sut = authUseCase(loadUserByEmailRepository);
+
+  return {
+    sut,
+    loadUserByEmailRepository,
+  };
+};
+
 describe('Auth UseCase', () => {
   test('Should throw if no email is provided', async () => {
-    const sut = authUseCase();
+    const { sut } = makeSut();
 
     const promise = sut.auth({});
 
@@ -30,7 +41,7 @@ describe('Auth UseCase', () => {
   });
 
   test('Should throw if no email is provided', async () => {
-    const sut = authUseCase();
+    const { sut } = makeSut();
 
     const promise = sut.auth({ email: 'any_email@mail.com' });
 
@@ -38,9 +49,7 @@ describe('Auth UseCase', () => {
   });
 
   test('Should call loadUserByEmailRepository with correct email', async () => {
-    const loadUserByEmailRepositorySpy = LoadUserByEmailRepositorySpy();
-
-    const sut = authUseCase(loadUserByEmailRepositorySpy);
+    const { sut } = makeSut();
 
     const res = await sut.auth({
       email: 'any_email@mail.com',
