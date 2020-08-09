@@ -167,4 +167,16 @@ describe('Auth UseCase', () => {
 
     expect(userId).toBe('any_id');
   });
+
+  test('Should return an accessToken if correct credentials are provided', async () => {
+    const { sut } = makeSut();
+
+    const { accessToken } = await sut.auth({
+      email: 'any_email@mail.com',
+      password: 'any_password',
+    });
+
+    expect(accessToken).toBe('any_token');
+    expect(accessToken).toBeTruthy();
+  });
 });

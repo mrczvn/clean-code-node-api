@@ -20,13 +20,13 @@ const authUseCase = ({
         hashedPassword: user.hashedPassword,
       });
 
-      const { userId } = await tokenGenerator.generate(user.id);
+      const { userId, accessToken } = await tokenGenerator.generate(user.id);
 
       return {
         userId,
         email: user.email,
         password: user.password,
-        accessToken: user.accessToken,
+        accessToken,
         hashedPassword,
       };
     },
