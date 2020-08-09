@@ -1,6 +1,10 @@
 const { missingParamError } = require('../../util');
 
-const authUseCase = ({ loadUserByEmailRepository, encrypter }) => {
+const authUseCase = ({
+  loadUserByEmailRepository,
+  encrypter,
+  tokenGenerator,
+}) => {
   return {
     auth: async ({ email, password }) => {
       if (!email) return missingParamError('email');
@@ -9,14 +13,17 @@ const authUseCase = ({ loadUserByEmailRepository, encrypter }) => {
 
       const user = await loadUserByEmailRepository.load({ email, password });
 
-      if (!user.accessToken) return { email: user.email, accessToken: null };
+      if (!user) return { accessToken: null };
 
       const hashedPassword = await encrypter.compare({
         password,
         hashedPassword: user.hashedPassword,
       });
 
+      const { userId } = await tokenGenerator.generate(user.id);
+
       return {
+        userId,
         email: user.email,
         password: user.password,
         accessToken: user.accessToken,

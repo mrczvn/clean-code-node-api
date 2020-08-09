@@ -13,12 +13,26 @@ const makeEncrypter = () => {
   return encrypterSpy();
 };
 
+const makeTokenGenerator = () => {
+  const tokenGeneratorSpy = () => {
+    return {
+      generate: async (userId) => {
+        if (userId === 'any_id') return { accessToken: 'any_token', userId };
+        return null;
+      },
+    };
+  };
+
+  return tokenGeneratorSpy();
+};
+
 const makeLoadUserByEmailRepository = () => {
   const loadUserByEmailRepositorySpy = () => {
     return {
       load: async ({ email, password }) => {
         const isValid = (value) => {
           return {
+            id: 'any_id',
             accessToken: value,
             email,
             hashedPassword: 'hashed_password',
@@ -30,7 +44,7 @@ const makeLoadUserByEmailRepository = () => {
           email === 'invalid_email@mail.com' ||
           password === 'invalid_password'
         )
-          return isValid(null);
+          return null;
 
         return isValid(true);
       },
@@ -42,17 +56,20 @@ const makeLoadUserByEmailRepository = () => {
 
 const makeSut = () => {
   const encrypterSpy = makeEncrypter();
-  const loadUserByEmailRepository = makeLoadUserByEmailRepository();
+  const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository();
+  const tokenGeneratorSpy = makeTokenGenerator();
 
   const sut = authUseCase({
-    loadUserByEmailRepository,
+    loadUserByEmailRepository: loadUserByEmailRepositorySpy,
     encrypter: encrypterSpy,
+    tokenGenerator: tokenGeneratorSpy,
   });
 
   return {
     sut,
-    loadUserByEmailRepository,
+    loadUserByEmailRepositorySpy,
     encrypterSpy,
+    tokenGeneratorSpy,
   };
 };
 
@@ -138,5 +155,16 @@ describe('Auth UseCase', () => {
 
     expect(password).toBe('any_password');
     expect(hashedPassword).toBe('hashed_password');
+  });
+
+  test('Should call tokenGenerator with correct userId', async () => {
+    const { sut } = makeSut();
+
+    const { userId } = await sut.auth({
+      email: 'any_email@mail.com',
+      password: 'any_password',
+    });
+
+    expect(userId).toBe('any_id');
   });
 });
