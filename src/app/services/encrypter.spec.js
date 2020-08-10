@@ -10,9 +10,13 @@ const encrypter = () => {
   };
 };
 
+const makeSut = () => {
+  return encrypter();
+};
+
 describe('Encrypter', () => {
   test('Should return true if bcrypt returns true', async () => {
-    const sut = encrypter();
+    const sut = makeSut();
 
     const value = await sut.compare({
       value: 'any_password',
@@ -23,7 +27,7 @@ describe('Encrypter', () => {
   });
 
   test('Should return true if bcrypt returns true', async () => {
-    const sut = encrypter();
+    const sut = makeSut();
 
     const value = await sut.compare({
       value: 'invalid_password',
@@ -34,7 +38,7 @@ describe('Encrypter', () => {
   });
 
   test('Should return true if bcrypt returns true', async () => {
-    const sut = encrypter();
+    const sut = makeSut();
 
     await sut.compare({ value: 'any_password', hash: 'hashed_password' });
 
