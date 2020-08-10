@@ -4,7 +4,7 @@ const authUseCase = ({
   loadUserByEmailRepository,
   encrypter,
   tokenGenerator,
-}) => {
+} = {}) => {
   return {
     auth: async ({ email, password }) => {
       if (!email) return missingParamError('email');
