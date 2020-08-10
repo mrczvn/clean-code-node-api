@@ -2,6 +2,7 @@ const { missingParamError } = require('../../util');
 
 const authUseCase = ({
   loadUserByEmailRepository,
+  updateAccessTokenRepository,
   encrypter,
   tokenGenerator,
 } = {}) => {
@@ -13,22 +14,21 @@ const authUseCase = ({
 
       const user = await loadUserByEmailRepository.load({ email, password });
 
-      if (!user) return { accessToken: null };
+      const isValid =
+        user &&
+        (await encrypter.compare({ password, hashedPassword: user.password }));
 
-      const hashedPassword = await encrypter.compare({
-        password,
-        hashedPassword: user.hashedPassword,
-      });
+      if (isValid) {
+        const accessToken = await tokenGenerator.generate(user.id);
 
-      const { userId, accessToken } = await tokenGenerator.generate(user.id);
+        await updateAccessTokenRepository.update({
+          userId: user.id,
+          accessToken,
+        });
 
-      return {
-        userId,
-        email: user.email,
-        password: user.password,
-        accessToken,
-        hashedPassword,
-      };
+        return accessToken;
+      }
+      return { accessToken: null };
     },
   };
 };

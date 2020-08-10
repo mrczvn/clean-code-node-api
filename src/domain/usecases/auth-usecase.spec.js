@@ -4,9 +4,20 @@ const authUseCase = require('./auth-usecase');
 const makeEncrypter = () => {
   const encrypterSpy = () => {
     return {
-      compare: async ({ hashedPassword }) => {
-        return hashedPassword;
+      async compare({ password, hashedPassword }) {
+        const isValid = (value = true) => value;
+
+        if (password !== 'any_password') {
+          return isValid(false);
+        }
+
+        this.password = password;
+        this.hashedPassword = hashedPassword;
+
+        return isValid();
       },
+      password: '',
+      hashedPassword: '',
     };
   };
 
@@ -28,10 +39,15 @@ const makeEncrypterWithError = () => {
 const makeTokenGenerator = () => {
   const tokenGeneratorSpy = () => {
     return {
-      generate: async (userId) => {
-        if (userId === 'any_id') return { accessToken: 'any_token', userId };
-        return null;
+      async generate(userId) {
+        if (userId === 'any_id') {
+          this.userId = userId;
+
+          return this.accessToken;
+        }
       },
+      userId: '',
+      accessToken: 'any_token',
     };
   };
 
@@ -53,16 +69,8 @@ const makeTokenGeneratorWithError = () => {
 const makeLoadUserByEmailRepository = () => {
   const loadUserByEmailRepositorySpy = () => {
     return {
-      load: async ({ email, password }) => {
-        const isValid = (value) => {
-          return {
-            id: 'any_id',
-            accessToken: value,
-            email,
-            hashedPassword: 'hashed_password',
-            password,
-          };
-        };
+      async load({ email, password }) {
+        this.user.email = email;
 
         if (
           email === 'invalid_email@mail.com' ||
@@ -70,7 +78,12 @@ const makeLoadUserByEmailRepository = () => {
         )
           return null;
 
-        return isValid(true);
+        return this.user;
+      },
+      user: {
+        email: '',
+        id: 'any_id',
+        password: 'hashed_password',
       },
     };
   };
@@ -90,13 +103,30 @@ const makeLoadUserByEmailRepositoryWithError = () => {
   return loadUserByEmailRepositorySpy();
 };
 
+const makeUpdateAccessTokenRepository = () => {
+  const updateAccessTokenRepositorySpy = () => {
+    return {
+      async update({ userId, accessToken }) {
+        this.userId = userId;
+        this.accessToken = accessToken;
+      },
+      userId: '',
+      accessToken: '',
+    };
+  };
+
+  return updateAccessTokenRepositorySpy();
+};
+
 const makeSut = () => {
   const encrypterSpy = makeEncrypter();
   const loadUserByEmailRepositorySpy = makeLoadUserByEmailRepository();
   const tokenGeneratorSpy = makeTokenGenerator();
+  const updateAccessTokenRepositorySpy = makeUpdateAccessTokenRepository();
 
   const sut = authUseCase({
     loadUserByEmailRepository: loadUserByEmailRepositorySpy,
+    updateAccessTokenRepository: updateAccessTokenRepositorySpy,
     encrypter: encrypterSpy,
     tokenGenerator: tokenGeneratorSpy,
   });
@@ -106,6 +136,7 @@ const makeSut = () => {
     loadUserByEmailRepositorySpy,
     encrypterSpy,
     tokenGeneratorSpy,
+    updateAccessTokenRepositorySpy,
   };
 };
 
@@ -127,14 +158,11 @@ describe('Auth UseCase', () => {
   });
 
   test('Should call loadUserByEmailRepository with correct email', async () => {
-    const { sut } = makeSut();
+    const { sut, loadUserByEmailRepositorySpy } = makeSut();
 
-    const { email } = await sut.auth({
-      email: 'any_email@mail.com',
-      password: 'any_password',
-    });
+    await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
 
-    expect(email).toBe('any_email@mail.com');
+    expect(loadUserByEmailRepositorySpy.user.email).toBe('any_email@mail.com');
   });
 
   test('Should return null if an invalid email is provided', async () => {
@@ -152,7 +180,7 @@ describe('Auth UseCase', () => {
     const { sut } = makeSut();
 
     const { accessToken } = await sut.auth({
-      email: 'invalid_email@mail.com',
+      email: 'any_email@mail.com',
       password: 'invalid_password',
     });
 
@@ -160,38 +188,52 @@ describe('Auth UseCase', () => {
   });
 
   test('Should call encrypter with correct values', async () => {
-    const { sut } = makeSut();
+    const { sut, encrypterSpy, loadUserByEmailRepositorySpy } = makeSut();
 
-    const { hashedPassword, password } = await sut.auth({
-      email: 'any_email@mail.com',
-      password: 'any_password',
-    });
+    await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
 
-    expect(password).toBe('any_password');
-    expect(hashedPassword).toBe('hashed_password');
+    expect(encrypterSpy.password).toBe('any_password');
+    expect(encrypterSpy.hashedPassword).toBe(
+      loadUserByEmailRepositorySpy.user.password
+    );
   });
 
   test('Should call tokenGenerator with correct userId', async () => {
-    const { sut } = makeSut();
+    const { sut, tokenGeneratorSpy, loadUserByEmailRepositorySpy } = makeSut();
 
-    const { userId } = await sut.auth({
-      email: 'any_email@mail.com',
-      password: 'any_password',
-    });
+    await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
 
-    expect(userId).toBe('any_id');
+    expect(tokenGeneratorSpy.userId).toBe(loadUserByEmailRepositorySpy.user.id);
   });
 
   test('Should return an accessToken if correct credentials are provided', async () => {
-    const { sut } = makeSut();
+    const { sut, tokenGeneratorSpy } = makeSut();
 
-    const { accessToken } = await sut.auth({
+    const accessToken = await sut.auth({
       email: 'any_email@mail.com',
       password: 'any_password',
     });
 
-    expect(accessToken).toBe('any_token');
+    expect(accessToken).toBe(tokenGeneratorSpy.accessToken);
     expect(accessToken).toBeTruthy();
+  });
+
+  test('Should call updateAccessTokenRepository if correct values', async () => {
+    const {
+      sut,
+      loadUserByEmailRepositorySpy,
+      updateAccessTokenRepositorySpy,
+      tokenGeneratorSpy,
+    } = makeSut();
+
+    await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
+
+    expect(updateAccessTokenRepositorySpy.userId).toBe(
+      loadUserByEmailRepositorySpy.user.id
+    );
+    expect(updateAccessTokenRepositorySpy.accessToken).toBe(
+      tokenGeneratorSpy.accessToken
+    );
   });
 
   test('Should throw if invalid dependencies are provided', async () => {
@@ -217,7 +259,7 @@ describe('Auth UseCase', () => {
     });
   });
 
-  test('Should throw if invalid dependencies are provided', async () => {
+  test('Should throw if any dependencies throws', async () => {
     const loadUserByEmailRepository = makeLoadUserByEmailRepository();
     const encrypter = makeEncrypter();
 
