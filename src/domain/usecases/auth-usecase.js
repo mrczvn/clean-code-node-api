@@ -8,9 +8,9 @@ const authUseCase = ({
 } = {}) => {
   return {
     auth: async ({ email, password }) => {
-      if (!email) return missingParamError('email');
+      if (!email) throw missingParamError('email');
 
-      if (!password) return missingParamError('password');
+      if (!password) throw missingParamError('password');
 
       const user = await loadUserByEmailRepository.load({ email, password });
 
