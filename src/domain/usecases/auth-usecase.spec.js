@@ -13,12 +13,36 @@ const makeEncrypter = () => {
   return encrypterSpy();
 };
 
+const makeEncrypterWithError = () => {
+  const encrypterSpy = () => {
+    return {
+      compare: async () => {
+        throw new Error();
+      },
+    };
+  };
+
+  return encrypterSpy();
+};
+
 const makeTokenGenerator = () => {
   const tokenGeneratorSpy = () => {
     return {
       generate: async (userId) => {
         if (userId === 'any_id') return { accessToken: 'any_token', userId };
         return null;
+      },
+    };
+  };
+
+  return tokenGeneratorSpy();
+};
+
+const makeTokenGeneratorWithError = () => {
+  const tokenGeneratorSpy = () => {
+    return {
+      generate: async () => {
+        throw new Error();
       },
     };
   };
@@ -47,6 +71,18 @@ const makeLoadUserByEmailRepository = () => {
           return null;
 
         return isValid(true);
+      },
+    };
+  };
+
+  return loadUserByEmailRepositorySpy();
+};
+
+const makeLoadUserByEmailRepositoryWithError = () => {
+  const loadUserByEmailRepositorySpy = () => {
+    return {
+      load: async () => {
+        throw new Error();
       },
     };
   };
@@ -169,6 +205,35 @@ describe('Auth UseCase', () => {
       authUseCase({ loadUserByEmailRepository, encrypter: {} }),
       authUseCase({ loadUserByEmailRepository, encrypter }),
       authUseCase({ loadUserByEmailRepository, encrypter, tokenGenerator: {} }),
+    ];
+
+    suts.forEach((sut) => {
+      const promise = sut.auth({
+        email: 'any_email@mail.com',
+        password: 'any_password',
+      });
+
+      expect(promise).rejects.toThrow();
+    });
+  });
+
+  test('Should throw if invalid dependencies are provided', async () => {
+    const loadUserByEmailRepository = makeLoadUserByEmailRepository();
+    const encrypter = makeEncrypter();
+
+    const suts = [
+      authUseCase({
+        loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError(),
+      }),
+      authUseCase({
+        loadUserByEmailRepository,
+        encrypter: makeEncrypterWithError(),
+      }),
+      authUseCase({
+        loadUserByEmailRepository,
+        encrypter,
+        tokenGenerator: makeTokenGeneratorWithError(),
+      }),
     ];
 
     suts.forEach((sut) => {
