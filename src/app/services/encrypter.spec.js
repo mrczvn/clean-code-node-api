@@ -32,4 +32,13 @@ describe('Encrypter', () => {
 
     expect(value).toBe(false);
   });
+
+  test('Should return true if bcrypt returns true', async () => {
+    const sut = encrypter();
+
+    await sut.compare({ value: 'any_password', hash: 'hashed_password' });
+
+    expect(bcrypt.value).toBe('any_password');
+    expect(bcrypt.hash).toBe('hashed_password');
+  });
 });
