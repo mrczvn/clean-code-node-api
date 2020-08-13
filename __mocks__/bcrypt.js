@@ -1,4 +1,4 @@
-const bcrypt = {
+module.exports = {
   compare(value, hash) {
     const isValid = (valid = true) => valid;
 
@@ -13,5 +13,3 @@ const bcrypt = {
   value: '',
   hash: '',
 };
-
-module.exports = bcrypt;

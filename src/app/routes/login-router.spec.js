@@ -214,7 +214,7 @@ describe('Login Route', () => {
     const suts = [sut.route(), sut.route({})];
 
     suts.forEach(async (s) => {
-      const httpResponse = await s.route();
+      const httpResponse = await s;
 
       expect(httpResponse.statusCode).toBe(500);
       expect(httpResponse.body).toEqual(serverError());

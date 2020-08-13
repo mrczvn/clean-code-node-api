@@ -31,6 +31,6 @@ describe('Email Validator', () => {
   test('Should throw if no is provided', async () => {
     const sut = makeSut();
 
-    expect(sut.isValid).toThrow(missingParamError('email'));
+    expect(() => sut.isValid()).toThrow(missingParamError('email'));
   });
 });
