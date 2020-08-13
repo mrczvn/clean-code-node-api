@@ -1,7 +1,7 @@
 const httpResponse = require('../helpers/http-response');
 const { missingParamError, invalidParamError } = require('../../util');
 
-function loginRouter({ authUseCase, emailValidator }) {
+function loginRouter({ authUseCase, emailValidator } = {}) {
   return {
     route: async (httpRequest) => {
       try {
@@ -16,17 +16,11 @@ function loginRouter({ authUseCase, emailValidator }) {
         if (!password)
           return httpResponse().badRequest(missingParamError('password'));
 
-        const authUseCaseResolved = await authUseCase.auth({ email, password });
-
-        const { accessToken } = authUseCaseResolved;
+        const accessToken = await authUseCase.auth({ email, password });
 
         if (!accessToken) return httpResponse().unauthorizedError();
 
-        return {
-          httpResponse: httpResponse().ok({ accessToken }),
-          email: authUseCaseResolved.email,
-          password: authUseCaseResolved.password,
-        };
+        return httpResponse().ok({ accessToken });
       } catch (error) {
         return httpResponse().serverError();
       }
