@@ -6,6 +6,8 @@ const tokenGenerator = (secret) => {
     generate: async (id) => {
       if (!secret) throw missingParamError('secret');
 
+      if (!id) throw missingParamError('id');
+
       return jwt.sign(id, secret);
     },
   };
@@ -45,5 +47,13 @@ describe('Token Generator', () => {
     const promise = sut.generate('any_id');
 
     expect(promise).rejects.toThrow(missingParamError('secret'));
+  });
+
+  test('Should throw if no id is provided', () => {
+    const sut = makeSut();
+
+    const promise = sut.generate();
+
+    expect(promise).rejects.toThrow(missingParamError('id'));
   });
 });
