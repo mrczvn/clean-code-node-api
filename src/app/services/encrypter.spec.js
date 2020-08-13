@@ -2,9 +2,7 @@ const bcrypt = require('bcrypt');
 const encrypter = require('./encrypter');
 const { missingParamError } = require('../../util');
 
-const makeSut = () => {
-  return encrypter();
-};
+const makeSut = () => encrypter();
 
 describe('Encrypter', () => {
   test('Should return true if bcrypt returns true', async () => {
