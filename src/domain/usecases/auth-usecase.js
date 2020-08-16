@@ -4,7 +4,7 @@ const authUseCase = ({
   loadUserByEmailRepository,
   updateAccessTokenRepository,
   encrypter,
-  tokenGenerator,
+  tokenGenerator
 } = {}) => {
   return {
     auth: async ({ email, password }) => {
@@ -23,13 +23,13 @@ const authUseCase = ({
 
         await updateAccessTokenRepository.update({
           userId: user.id,
-          accessToken,
+          accessToken
         });
 
         return accessToken;
       }
       return { accessToken: null };
-    },
+    }
   };
 };
 

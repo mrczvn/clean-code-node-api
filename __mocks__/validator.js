@@ -7,5 +7,5 @@ module.exports = {
     if (email !== 'any_email@mail.com') return isValidated(false);
 
     return isValidated(true);
-  },
+  }
 };

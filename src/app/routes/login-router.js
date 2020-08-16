@@ -24,7 +24,7 @@ function loginRouter({ authUseCase, emailValidator } = {}) {
       } catch (error) {
         return httpResponse().serverError();
       }
-    },
+    }
   };
 }
 

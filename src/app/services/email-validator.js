@@ -7,7 +7,7 @@ const emailValidator = () => {
       if (!email) throw missingParamError('email');
 
       return validator.isEmail(email);
-    },
+    }
   };
 };
 

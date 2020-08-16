@@ -9,5 +9,5 @@ module.exports = {
   },
   token: 'any_token',
   id: '',
-  secret: '',
+  secret: ''
 };

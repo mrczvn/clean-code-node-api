@@ -9,7 +9,7 @@ const tokenGenerator = (secret) => {
       if (!id) throw missingParamError('id');
 
       return jwt.sign(id, secret);
-    },
+    }
   };
 };
 

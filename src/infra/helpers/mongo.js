@@ -7,7 +7,7 @@ module.exports = {
 
     this.client = await MongoClient.connect(uri, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      useUnifiedTopology: true
     });
     this.db = this.client.db(dbName);
   },
@@ -19,5 +19,5 @@ module.exports = {
   async getDb() {
     if (!this.client.isConnected()) await this.connect(this.uri, this.dbName);
     return this.db;
-  },
+  }
 };

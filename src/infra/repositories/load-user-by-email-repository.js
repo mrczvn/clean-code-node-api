@@ -11,7 +11,7 @@ const loadUserByEmailRepository = (userModel) => {
       );
 
       return user;
-    },
+    }
   };
 };
 

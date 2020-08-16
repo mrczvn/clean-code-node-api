@@ -11,7 +11,7 @@ const makeSut = () => {
 
   return {
     userModel,
-    sut,
+    sut
   };
 };
 
@@ -46,7 +46,7 @@ describe('LoadUserByEmail Repository', () => {
       name: 'any_name',
       age: 30,
       state: 'any_state',
-      password: 'hashed_password',
+      password: 'hashed_password'
     });
 
     const [{ _id, password }] = fakeUser.ops;

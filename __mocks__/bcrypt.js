@@ -11,5 +11,5 @@ module.exports = {
     return isValid();
   },
   value: '',
-  hash: '',
+  hash: ''
 };
