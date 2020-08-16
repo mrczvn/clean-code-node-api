@@ -1,7 +1,7 @@
 const loadUserByEmailRepository = (userModel) => {
   return {
     load: async (email) => {
-      const user = userModel.findOne(
+      const user = await userModel.findOne(
         { email },
         { projection: { password: 1 } }
       );
