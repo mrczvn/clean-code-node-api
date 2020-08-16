@@ -1,19 +1,8 @@
 const MongoHelper = require('../helpers/mongo-helper');
+const updateAccessTokenRepository = require('./update-access-token-repository');
 const { missingParamError } = require('../../util');
 
 let db;
-
-const updateAccessTokenRepository = (userModel) => {
-  return {
-    async update({ userId, accessToken }) {
-      if (!userId) throw missingParamError('userId');
-
-      if (!accessToken) throw missingParamError('accessToken');
-
-      await userModel.updateOne({ _id: userId }, { $set: { accessToken } });
-    },
-  };
-};
 
 const makeSut = () => {
   const userModel = db.collection('users');
