@@ -15,6 +15,8 @@ const makeSut = () => {
 };
 
 describe('UpdateAccessToken Repository', () => {
+  let _id;
+
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL);
 
@@ -22,7 +24,19 @@ describe('UpdateAccessToken Repository', () => {
   });
 
   beforeEach(async () => {
+    const { userModel } = makeSut();
+
     await db.collection('users').deleteMany();
+
+    const fakeUser = await userModel.insertOne({
+      email: 'valid_email@mail.com',
+      name: 'any_name',
+      age: 30,
+      state: 'any_state',
+      password: 'hashed_password',
+    });
+
+    [{ _id }] = fakeUser.ops;
   });
 
   afterAll(async () => {
@@ -32,16 +46,6 @@ describe('UpdateAccessToken Repository', () => {
   test('Should update the user with the given accessToken', async () => {
     const { sut, userModel } = makeSut();
 
-    const fakeUser = await userModel.insertOne({
-      email: 'valid_email@mail.com',
-      name: 'any_name',
-      age: 30,
-      state: 'any_state',
-      password: 'hashed_password',
-    });
-
-    const [{ _id }] = fakeUser.ops;
-
     await sut.update({ userId: _id, accessToken: 'valid_token' });
 
     const updateFakeUser = await userModel.findOne({ _id });
@@ -50,37 +54,15 @@ describe('UpdateAccessToken Repository', () => {
   });
 
   test('Should throws if no userModel is provided', async () => {
-    const { userModel } = makeSut();
-
     const sut = updateAccessTokenRepository();
 
-    const fakeUser = await userModel.insertOne({
-      email: 'valid_email@mail.com',
-      name: 'any_name',
-      age: 30,
-      state: 'any_state',
-      password: 'hashed_password',
-    });
-
-    const [{ _id }] = fakeUser.ops;
-
-    const promise = sut.update({ serId: _id, accessToken: 'valid_token' });
+    const promise = sut.update({ userId: _id, accessToken: 'valid_token' });
 
     expect(promise).rejects.toThrow();
   });
 
   test('Should throws if no params are provided', async () => {
-    const { sut, userModel } = makeSut();
-
-    const fakeUser = await userModel.insertOne({
-      email: 'valid_email@mail.com',
-      name: 'any_name',
-      age: 30,
-      state: 'any_state',
-      password: 'hashed_password',
-    });
-
-    const [{ _id }] = fakeUser.ops;
+    const { sut } = makeSut();
 
     expect(sut.update({})).rejects.toThrow(missingParamError('userId'));
     expect(sut.update({ userId: _id })).rejects.toThrow(
