@@ -54,4 +54,12 @@ describe('LoadUserByEmail Repository', () => {
 
     expect(user).toEqual({ _id, password });
   });
+
+  test('Should throws if no userModel is provided', () => {
+    const sut = loadUserByEmailRepository();
+
+    const promise = sut.load('any_email@mail.com');
+
+    expect(promise).rejects.toThrow();
+  });
 });
