@@ -10,6 +10,16 @@ const updateAccessTokenRepository = (userModel) => {
   };
 };
 
+const makeSut = () => {
+  const userModel = db.collection('users');
+  const sut = updateAccessTokenRepository(userModel);
+
+  return {
+    sut,
+    userModel,
+  };
+};
+
 describe('UpdateAccessToken Repository', () => {
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL);
@@ -26,9 +36,7 @@ describe('UpdateAccessToken Repository', () => {
   });
 
   test('Should update the user with the given accessToken', async () => {
-    const userModel = db.collection('users');
-
-    const sut = updateAccessTokenRepository(userModel);
+    const { sut, userModel } = makeSut();
 
     const fakeUser = await userModel.insertOne({
       email: 'valid_email@mail.com',
@@ -45,5 +53,25 @@ describe('UpdateAccessToken Repository', () => {
     const updateFakeUser = await userModel.findOne({ _id });
 
     expect(updateFakeUser.accessToken).toBe('valid_token');
+  });
+
+  test('Should throws if no userModel is provided', async () => {
+    const { userModel } = makeSut();
+
+    const sut = updateAccessTokenRepository();
+
+    const fakeUser = await userModel.insertOne({
+      email: 'valid_email@mail.com',
+      name: 'any_name',
+      age: 30,
+      state: 'any_state',
+      password: 'hashed_password',
+    });
+
+    const [{ _id }] = fakeUser.ops;
+
+    const promise = sut.update({ serId: _id, accessToken: 'valid_token' });
+
+    expect(promise).rejects.toThrow();
   });
 });
