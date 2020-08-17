@@ -7,18 +7,26 @@ const encrypter = require('../../presentation/services/encrypter');
 const tokenGenerator = require('../../presentation/services/token-generator');
 const { tokenSecret } = require('../config/env');
 
-tokenGenerator(tokenSecret);
+const loginRouterComposer = () => {
+  return {
+    compose() {
+      tokenGenerator(tokenSecret);
 
-const authUseCase = AuthUseCase({
-  loadUserByEmailRepository: loadUserByEmailRepository(),
-  updateAccessTokenRepository: updateAccessTokenRepository(),
-  encrypter: encrypter(),
-  tokenGenerator: tokenGenerator(tokenGenerator),
-});
+      const authUseCase = AuthUseCase({
+        loadUserByEmailRepository: loadUserByEmailRepository(),
+        updateAccessTokenRepository: updateAccessTokenRepository(),
+        encrypter: encrypter(),
+        tokenGenerator: tokenGenerator(tokenGenerator),
+      });
 
-const loginRouter = LoginRouter({
-  authUseCase,
-  emailValidator: emailValidator(),
-});
+      const loginRouter = LoginRouter({
+        authUseCase,
+        emailValidator: emailValidator(),
+      });
 
-module.exports = loginRouter;
+      return loginRouter;
+    },
+  };
+};
+
+module.exports = loginRouterComposer();
