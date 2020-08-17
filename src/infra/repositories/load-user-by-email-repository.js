@@ -6,11 +6,12 @@ const loadUserByEmailRepository = () => {
     load: async (email) => {
       if (!email) throw missingParamError('email');
 
-      const db = await mongoHelper.getDb();
+      const userModel = await mongoHelper.getCollection('users');
 
-      const user = await db
-        .collection('users')
-        .findOne({ email }, { projection: { password: 1 } });
+      const user = await userModel.findOne(
+        { email },
+        { projection: { password: 1 } }
+      );
 
       return user;
     },

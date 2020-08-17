@@ -8,11 +8,9 @@ const updateAccessTokenRepository = () => {
 
       if (!accessToken) throw missingParamError('accessToken');
 
-      const db = await mongoHelper.getDb();
+      const userModel = await mongoHelper.getCollection('users');
 
-      await db
-        .collection('users')
-        .updateOne({ _id: userId }, { $set: { accessToken } });
+      await userModel.updateOne({ _id: userId }, { $set: { accessToken } });
     },
   };
 };
