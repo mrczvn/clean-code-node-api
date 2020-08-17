@@ -4,15 +4,7 @@ const { missingParamError } = require('../../util');
 
 let db;
 
-const makeSut = () => {
-  const userModel = db.collection('users');
-  const sut = updateAccessTokenRepository(userModel);
-
-  return {
-    sut,
-    userModel,
-  };
-};
+const makeSut = () => updateAccessTokenRepository();
 
 describe('UpdateAccessToken Repository', () => {
   let _id;
@@ -24,9 +16,9 @@ describe('UpdateAccessToken Repository', () => {
   });
 
   beforeEach(async () => {
-    const { userModel } = makeSut();
+    const userModel = db.collection('users');
 
-    await db.collection('users').deleteMany();
+    await userModel.deleteMany();
 
     const fakeUser = await userModel.insertOne({
       email: 'valid_email@mail.com',
@@ -44,25 +36,17 @@ describe('UpdateAccessToken Repository', () => {
   });
 
   test('Should update the user with the given accessToken', async () => {
-    const { sut, userModel } = makeSut();
+    const sut = makeSut();
 
     await sut.update({ userId: _id, accessToken: 'valid_token' });
 
-    const updateFakeUser = await userModel.findOne({ _id });
+    const updateFakeUser = await db.collection('users').findOne({ _id });
 
     expect(updateFakeUser.accessToken).toBe('valid_token');
   });
 
-  test('Should throws if no userModel is provided', async () => {
-    const sut = updateAccessTokenRepository();
-
-    const promise = sut.update({ userId: _id, accessToken: 'valid_token' });
-
-    expect(promise).rejects.toThrow();
-  });
-
   test('Should throws if no params are provided', async () => {
-    const { sut } = makeSut();
+    const sut = makeSut();
 
     expect(sut.update({})).rejects.toThrow(missingParamError('userId'));
     expect(sut.update({ userId: _id })).rejects.toThrow(
