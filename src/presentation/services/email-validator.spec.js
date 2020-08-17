@@ -1,3 +1,15 @@
+jest.mock('validator', () => ({
+  isEmail: (email) => {
+    const isValidated = (value) => {
+      return { value, email };
+    };
+
+    if (email !== 'any_email@mail.com') return isValidated(false);
+
+    return isValidated(true);
+  },
+}));
+
 const emailValidator = require('./email-validator');
 const { missingParamError } = require('../../util');
 

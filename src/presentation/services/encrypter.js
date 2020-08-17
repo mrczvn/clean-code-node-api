@@ -11,7 +11,7 @@ const encrypter = () => {
       const isValid = await bcrypt.compare(value, hash);
 
       return isValid;
-    }
+    },
   };
 };
 

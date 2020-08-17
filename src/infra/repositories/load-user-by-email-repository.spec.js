@@ -24,7 +24,7 @@ describe('LoadUserByEmail Repository', () => {
   test('Should returns null if no user is found', async () => {
     const sut = makeSut();
 
-    const user = await sut.load('invalid_email@mail.com');
+    const user = await sut.load({ email: 'invalid_email@mail.com' });
 
     expect(user).toBeNull();
   });
@@ -42,7 +42,7 @@ describe('LoadUserByEmail Repository', () => {
 
     const [{ _id, password }] = fakeUser.ops;
 
-    const user = await sut.load('valid_email@mail.com');
+    const user = await sut.load({ email: 'valid_email@mail.com' });
 
     expect(user).toEqual({ _id, password });
   });
@@ -50,7 +50,7 @@ describe('LoadUserByEmail Repository', () => {
   test('Should throws if no email is provided', () => {
     const sut = makeSut();
 
-    const promise = sut.load();
+    const promise = sut.load({});
 
     expect(promise).rejects.toThrow(missingParamError('email'));
   });

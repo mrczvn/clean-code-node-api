@@ -4,20 +4,20 @@ const authUseCase = require('./auth-usecase');
 const makeEncrypter = () => {
   const encrypterSpy = () => {
     return {
-      async compare({ password, hashedPassword }) {
-        const isValid = (value = true) => value;
+      async compare({ value, hash }) {
+        const isValid = (val = true) => val;
 
-        if (password !== 'any_password') {
+        if (value !== 'any_password') {
           return isValid(false);
         }
 
-        this.password = password;
-        this.hashedPassword = hashedPassword;
+        this.password = value;
+        this.hashedPassword = hash;
 
         return isValid();
       },
       password: '',
-      hashedPassword: ''
+      hashedPassword: '',
     };
   };
 
@@ -29,7 +29,7 @@ const makeEncrypterWithError = () => {
     return {
       compare: async () => {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -47,7 +47,7 @@ const makeTokenGenerator = () => {
         }
       },
       userId: '',
-      accessToken: 'any_token'
+      accessToken: 'any_token',
     };
   };
 
@@ -59,7 +59,7 @@ const makeTokenGeneratorWithError = () => {
     return {
       generate: async () => {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -82,9 +82,9 @@ const makeLoadUserByEmailRepository = () => {
       },
       user: {
         email: '',
-        id: 'any_id',
-        password: 'hashed_password'
-      }
+        _id: 'any_id',
+        password: 'hashed_password',
+      },
     };
   };
 
@@ -96,7 +96,7 @@ const makeLoadUserByEmailRepositoryWithError = () => {
     return {
       load: async () => {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -111,7 +111,7 @@ const makeUpdateAccessTokenRepository = () => {
         this.accessToken = accessToken;
       },
       userId: '',
-      accessToken: ''
+      accessToken: '',
     };
   };
 
@@ -123,7 +123,7 @@ const makeUpdateAccessTokenRepositoryWithError = () => {
     return {
       async update() {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -140,7 +140,7 @@ const makeSut = () => {
     loadUserByEmailRepository: loadUserByEmailRepositorySpy,
     updateAccessTokenRepository: updateAccessTokenRepositorySpy,
     encrypter: encrypterSpy,
-    tokenGenerator: tokenGeneratorSpy
+    tokenGenerator: tokenGeneratorSpy,
   });
 
   return {
@@ -148,7 +148,7 @@ const makeSut = () => {
     loadUserByEmailRepositorySpy,
     encrypterSpy,
     tokenGeneratorSpy,
-    updateAccessTokenRepositorySpy
+    updateAccessTokenRepositorySpy,
   };
 };
 
@@ -180,9 +180,9 @@ describe('Auth UseCase', () => {
   test('Should return null if an invalid email is provided', async () => {
     const { sut } = makeSut();
 
-    const { accessToken } = await sut.auth({
+    const accessToken = await sut.auth({
       email: 'invalid_email@mail.com',
-      password: 'any_password'
+      password: 'any_password',
     });
 
     expect(accessToken).toBeNull();
@@ -191,9 +191,9 @@ describe('Auth UseCase', () => {
   test('Should return null if an invalid password is provided', async () => {
     const { sut } = makeSut();
 
-    const { accessToken } = await sut.auth({
+    const accessToken = await sut.auth({
       email: 'any_email@mail.com',
-      password: 'invalid_password'
+      password: 'invalid_password',
     });
 
     expect(accessToken).toBeNull();
@@ -215,7 +215,9 @@ describe('Auth UseCase', () => {
 
     await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
 
-    expect(tokenGeneratorSpy.userId).toBe(loadUserByEmailRepositorySpy.user.id);
+    expect(tokenGeneratorSpy.userId).toBe(
+      loadUserByEmailRepositorySpy.user._id
+    );
   });
 
   test('Should return an accessToken if correct credentials are provided', async () => {
@@ -223,7 +225,7 @@ describe('Auth UseCase', () => {
 
     const accessToken = await sut.auth({
       email: 'any_email@mail.com',
-      password: 'any_password'
+      password: 'any_password',
     });
 
     expect(accessToken).toBe(tokenGeneratorSpy.accessToken);
@@ -235,13 +237,13 @@ describe('Auth UseCase', () => {
       sut,
       loadUserByEmailRepositorySpy,
       updateAccessTokenRepositorySpy,
-      tokenGeneratorSpy
+      tokenGeneratorSpy,
     } = makeSut();
 
     await sut.auth({ email: 'any_email@mail.com', password: 'any_password' });
 
     expect(updateAccessTokenRepositorySpy.userId).toBe(
-      loadUserByEmailRepositorySpy.user.id
+      loadUserByEmailRepositorySpy.user._id
     );
     expect(updateAccessTokenRepositorySpy.accessToken).toBe(
       tokenGeneratorSpy.accessToken
@@ -265,14 +267,14 @@ describe('Auth UseCase', () => {
         loadUserByEmailRepository,
         encrypter,
         tokenGenerator,
-        updateAccessTokenRepository: {}
-      })
+        updateAccessTokenRepository: {},
+      }),
     ];
 
     suts.forEach((sut) => {
       const promise = sut.auth({
         email: 'any_email@mail.com',
-        password: 'any_password'
+        password: 'any_password',
       });
 
       expect(promise).rejects.toThrow();
@@ -286,29 +288,29 @@ describe('Auth UseCase', () => {
 
     const suts = [
       authUseCase({
-        loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError()
+        loadUserByEmailRepository: makeLoadUserByEmailRepositoryWithError(),
       }),
       authUseCase({
         loadUserByEmailRepository,
-        encrypter: makeEncrypterWithError()
+        encrypter: makeEncrypterWithError(),
       }),
       authUseCase({
         loadUserByEmailRepository,
         encrypter,
-        tokenGenerator: makeTokenGeneratorWithError()
+        tokenGenerator: makeTokenGeneratorWithError(),
       }),
       authUseCase({
         loadUserByEmailRepository,
         encrypter,
         tokenGenerator,
-        updateAccessTokenRepository: makeUpdateAccessTokenRepositoryWithError()
-      })
+        updateAccessTokenRepository: makeUpdateAccessTokenRepositoryWithError(),
+      }),
     ];
 
     suts.forEach((sut) => {
       const promise = sut.auth({
         email: 'any_email@mail.com',
-        password: 'any_password'
+        password: 'any_password',
       });
 
       expect(promise).rejects.toThrow();

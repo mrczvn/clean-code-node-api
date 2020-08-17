@@ -8,8 +8,8 @@ const tokenGenerator = (secret) => {
 
       if (!id) throw missingParamError('id');
 
-      return jwt.sign(id, secret);
-    }
+      return jwt.sign({ _id: id }, secret);
+    },
   };
 };
 

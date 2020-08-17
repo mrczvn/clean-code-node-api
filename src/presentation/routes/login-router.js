@@ -6,25 +6,23 @@ function loginRouter({ authUseCase, emailValidator } = {}) {
     route: async (httpRequest) => {
       try {
         const { email, password } = httpRequest.body;
-
-        if (!email)
-          return httpResponse().badRequest(missingParamError('email'));
+        if (!email) return httpResponse.badRequest(missingParamError('email'));
 
         if (!emailValidator.isValid(email))
-          return httpResponse().badRequest(invalidParamError('email'));
+          return httpResponse.badRequest(invalidParamError('email'));
 
         if (!password)
-          return httpResponse().badRequest(missingParamError('password'));
+          return httpResponse.badRequest(missingParamError('password'));
 
         const accessToken = await authUseCase.auth({ email, password });
 
-        if (!accessToken) return httpResponse().unauthorizedError();
+        if (!accessToken) return httpResponse.unauthorizedError();
 
-        return httpResponse().ok({ accessToken });
+        return httpResponse.ok({ accessToken });
       } catch (error) {
-        return httpResponse().serverError();
+        return httpResponse.serverError();
       }
-    }
+    },
   };
 }
 

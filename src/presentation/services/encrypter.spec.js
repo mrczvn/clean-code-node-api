@@ -1,3 +1,19 @@
+jest.mock('bcrypt', () => ({
+  compare(value, hash) {
+    const isValid = (valid = true) => valid;
+
+    if (value !== 'any_password' || hash !== 'hashed_password')
+      return isValid(false);
+
+    this.value = value;
+    this.hash = hash;
+
+    return isValid();
+  },
+  value: '',
+  hash: '',
+}));
+ 
 const bcrypt = require('bcrypt');
 const encrypter = require('./encrypter');
 const { missingParamError } = require('../../util');
@@ -10,7 +26,7 @@ describe('Encrypter', () => {
 
     const value = await sut.compare({
       value: 'any_password',
-      hash: 'hashed_password'
+      hash: 'hashed_password',
     });
 
     expect(value).toBe(true);
@@ -21,7 +37,7 @@ describe('Encrypter', () => {
 
     const value = await sut.compare({
       value: 'invalid_password',
-      hash: 'hashed_password'
+      hash: 'hashed_password',
     });
 
     expect(value).toBe(false);

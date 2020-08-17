@@ -3,7 +3,7 @@ const mongoHelper = require('../helpers/mongo-helper');
 
 const loadUserByEmailRepository = () => {
   return {
-    load: async (email) => {
+    load: async ({ email }) => {
       if (!email) throw missingParamError('email');
 
       const userModel = await mongoHelper.getCollection('users');

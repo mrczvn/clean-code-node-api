@@ -4,7 +4,7 @@ const authUseCase = ({
   loadUserByEmailRepository,
   updateAccessTokenRepository,
   encrypter,
-  tokenGenerator
+  tokenGenerator,
 } = {}) => {
   return {
     auth: async ({ email, password }) => {
@@ -16,20 +16,20 @@ const authUseCase = ({
 
       const isValid =
         user &&
-        (await encrypter.compare({ password, hashedPassword: user.password }));
+        (await encrypter.compare({ value: password, hash: user.password }));
 
       if (isValid) {
-        const accessToken = await tokenGenerator.generate(user.id);
+        const accessToken = await tokenGenerator.generate(user._id);
 
         await updateAccessTokenRepository.update({
-          userId: user.id,
-          accessToken
+          userId: user._id,
+          accessToken,
         });
 
         return accessToken;
       }
-      return { accessToken: null };
-    }
+      return null;
+    },
   };
 };
 

@@ -16,7 +16,7 @@ const loginRouterComposer = () => {
         loadUserByEmailRepository: loadUserByEmailRepository(),
         updateAccessTokenRepository: updateAccessTokenRepository(),
         encrypter: encrypter(),
-        tokenGenerator: tokenGenerator(tokenGenerator),
+        tokenGenerator: tokenGenerator(tokenSecret),
       });
 
       const loginRouter = LoginRouter({
