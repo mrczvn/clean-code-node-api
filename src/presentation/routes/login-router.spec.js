@@ -4,7 +4,7 @@ const {
   missingParamError,
   unauthorizedError,
   invalidParamError,
-  serverError
+  serverError,
 } = require('../../util');
 
 const makeAuthUseCase = () => {
@@ -22,7 +22,7 @@ const makeAuthUseCase = () => {
       },
       email: '',
       password: '',
-      accessToken: 'any_token'
+      accessToken: 'any_token',
     };
   };
 
@@ -34,7 +34,7 @@ const makeAuthUseCaseWithError = () => {
     return {
       auth: async () => {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -53,7 +53,7 @@ const makeEmailValidator = () => {
 
         return isValidated(true);
       },
-      email: ''
+      email: '',
     };
   };
 
@@ -65,7 +65,7 @@ const makeEmailValidatorWithError = () => {
     return {
       isValid: () => {
         throw new Error();
-      }
+      },
     };
   };
 
@@ -79,13 +79,13 @@ const makeSut = () => {
 
   const sut = loginRouter({
     authUseCase: authUseCaseSpy,
-    emailValidator: emailValidatorSpy
+    emailValidator: emailValidatorSpy,
   });
 
   return {
     sut,
     authUseCaseSpy,
-    emailValidatorSpy
+    emailValidatorSpy,
   };
 };
 
@@ -95,14 +95,14 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     const httpResponse = await sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(missingParamError('email'));
+    expect(httpResponse.body.error).toBe(missingParamError('email').message);
   });
 
   test('Should return 400 if no password is provided', async () => {
@@ -110,14 +110,14 @@ describe('Login Route', () => {
 
     const httpRequest = {
       body: {
-        email: 'any_email@mail.com'
-      }
+        email: 'any_email@mail.com',
+      },
     };
 
     const httpResponse = await sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(missingParamError('password'));
+    expect(httpResponse.body.error).toBe(missingParamError('password').message);
   });
 
   test('Should return 400 if an invalid no email is provided', async () => {
@@ -126,14 +126,14 @@ describe('Login Route', () => {
     const httpRequest = {
       body: {
         email: 'invalid_emailmail.com',
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     const httpResponse = await sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(400);
-    expect(httpResponse.body).toEqual(invalidParamError('email'));
+    expect(httpResponse.body.error).toBe(invalidParamError('email').message);
   });
 
   test('Should call authUseCase with correct params', async () => {
@@ -142,8 +142,8 @@ describe('Login Route', () => {
     const httpRequest = {
       body: {
         email: 'any_email@mail.com',
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     await sut.route(httpRequest);
@@ -158,14 +158,14 @@ describe('Login Route', () => {
     const httpRequest = {
       body: {
         email: 'invalid_email@mail.com',
-        password: 'invalid_password'
-      }
+        password: 'invalid_password',
+      },
     };
 
     const httpResponse = await sut.route(httpRequest);
 
     expect(httpResponse.statusCode).toBe(401);
-    expect(httpResponse.body).toEqual(unauthorizedError());
+    expect(httpResponse.body.error).toBe(unauthorizedError().message);
   });
 
   test('Should return 200 when valid credentials are provided', async () => {
@@ -174,8 +174,8 @@ describe('Login Route', () => {
     const httpRequest = {
       body: {
         email: 'valid_email@mail.com',
-        password: 'valid_password'
-      }
+        password: 'valid_password',
+      },
     };
 
     const httpResponse = await sut.route(httpRequest);
@@ -191,21 +191,21 @@ describe('Login Route', () => {
       loginRouter(),
       loginRouter({ authUseCase: {} }),
       loginRouter({ authUseCase }),
-      loginRouter({ authUseCase, emailValidator: {} })
+      loginRouter({ authUseCase, emailValidator: {} }),
     ];
 
     const httpRequest = {
       body: {
         email: 'any_email@mail.com',
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     suts.forEach(async (sut) => {
       const httpResponse = await sut.route(httpRequest);
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(serverError());
+      expect(httpResponse.body.error).toBe(serverError().message);
     });
   });
 
@@ -217,7 +217,7 @@ describe('Login Route', () => {
       const httpResponse = await s;
 
       expect(httpResponse.statusCode).toBe(500);
-      expect(httpResponse.body).toEqual(serverError());
+      expect(httpResponse.body.error).toBe(serverError().message);
     });
   });
 
@@ -227,14 +227,14 @@ describe('Login Route', () => {
 
     const suts = [
       loginRouter({ authUseCase }),
-      loginRouter({ authUseCase, emailValidator })
+      loginRouter({ authUseCase, emailValidator }),
     ];
 
     const httpRequest = {
       body: {
         email: 'any_email@mail.com',
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     suts.forEach(async (sut) => {
@@ -250,8 +250,8 @@ describe('Login Route', () => {
     const httpRequest = {
       body: {
         email: 'any_email@mail.com',
-        password: 'any_password'
-      }
+        password: 'any_password',
+      },
     };
 
     await sut.route(httpRequest);
