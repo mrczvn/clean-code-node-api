@@ -5,6 +5,8 @@
     "linebreak-style": ["error", "windows"],
     "consistent-return": "off",
     "no-undef": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "global-require": "off",
+    "import/no-dynamic-require": "off"
   }
 }
