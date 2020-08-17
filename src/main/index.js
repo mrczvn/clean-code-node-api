@@ -6,7 +6,7 @@ const setupApp = (app) => {
   mongoHelper
     .connect(env.mongoUrl)
     .then(() => {
-      app.listen(8000, () => console.log(`Server is running`));
+      app.listen(env.port, () => console.log(`Server is running`));
     })
     .catch(console.error);
 };
