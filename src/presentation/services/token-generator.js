@@ -3,10 +3,10 @@ const { missingParamError } = require('../../util');
 
 const tokenGenerator = (secret) => {
   return {
-    generate: async (id) => {
-      if (!secret) throw missingParamError('secret');
+    generate: (id) => {
+      if (!secret) return missingParamError('secret');
 
-      if (!id) throw missingParamError('id');
+      if (!id) return missingParamError('id');
 
       return jwt.sign({ _id: id }, secret);
     },

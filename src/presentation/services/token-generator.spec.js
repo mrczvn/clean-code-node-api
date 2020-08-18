@@ -19,26 +19,26 @@ const { missingParamError } = require('../../util');
 const makeSut = () => tokenGenerator('secret');
 
 describe('Token Generator', () => {
-  test('Should return null if JWT returns null', async () => {
+  test('Should return null if JWT returns null', () => {
     const sut = makeSut();
 
-    const accessToken = await sut.generate('any_i');
+    const accessToken = sut.generate('any_i');
 
     expect(accessToken).toBeNull();
   });
 
-  test('Should return token if JWT returns token', async () => {
+  test('Should return token if JWT returns token', () => {
     const sut = makeSut();
 
-    const accessToken = await sut.generate('any_id');
+    const accessToken = sut.generate('any_id');
 
     expect(accessToken).toBe(jwt.token);
   });
 
-  test('Should call JWT with correct values', async () => {
+  test('Should call JWT with correct values', () => {
     const sut = makeSut();
 
-    await sut.generate('any_id');
+    sut.generate('any_id');
 
     expect(jwt.id).toBe('any_id');
     expect(jwt.secret).toBe('secret');
@@ -49,7 +49,7 @@ describe('Token Generator', () => {
 
     const promise = sut.generate('any_id');
 
-    expect(promise).rejects.toThrow(missingParamError('secret'));
+    expect(promise).toEqual(missingParamError('secret'));
   });
 
   test('Should throw if no id is provided', () => {
@@ -57,6 +57,6 @@ describe('Token Generator', () => {
 
     const promise = sut.generate();
 
-    expect(promise).rejects.toThrow(missingParamError('id'));
+    expect(promise).toEqual(missingParamError('id'));
   });
 });
