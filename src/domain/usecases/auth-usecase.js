@@ -12,7 +12,7 @@ const authUseCase = ({
 
       if (!password) throw missingParamError('password');
 
-      const user = await loadUserByEmailRepository.load({ email, password });
+      const user = await loadUserByEmailRepository.load(email);
 
       const isValid =
         user &&

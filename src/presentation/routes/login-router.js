@@ -3,7 +3,7 @@ const { missingParamError, invalidParamError } = require('../../util');
 
 function loginRouter({ authUseCase, emailValidator } = {}) {
   return {
-    route: async (httpRequest) => {
+    async route(httpRequest) {
       try {
         const { email, password } = httpRequest.body;
         if (!email) return httpResponse.badRequest(missingParamError('email'));

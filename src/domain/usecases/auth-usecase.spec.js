@@ -69,14 +69,10 @@ const makeTokenGeneratorWithError = () => {
 const makeLoadUserByEmailRepository = () => {
   const loadUserByEmailRepositorySpy = () => {
     return {
-      async load({ email, password }) {
+      async load(email) {
         this.user.email = email;
 
-        if (
-          email === 'invalid_email@mail.com' ||
-          password === 'invalid_password'
-        )
-          return null;
+        if (email === 'invalid_email@mail.com') return null;
 
         return this.user;
       },
