@@ -3,7 +3,8 @@ const {
   badRequest,
   missingParamError,
   serverError,
-  unauthorizedError
+  unauthorizedError,
+  ok
 } = require('./signin-controller-protocols')
 const { AuthenticationSpy, ValidationSpy } = require('../../../test')
 
@@ -83,5 +84,13 @@ describe('SignIn Controller', () => {
     const httpResponse = await sut.handle(mockRequest())
 
     expect(httpResponse).toEqual(serverError(new Error()))
+  })
+
+  test('Should return 200 an account on success', async () => {
+    const { sut, authenticationSpy } = makeSut()
+
+    const httpResponse = await sut.handle(mockFakeRequest)
+
+    expect(httpResponse).toEqual(ok(authenticationSpy.account))
   })
 })
