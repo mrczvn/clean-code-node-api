@@ -80,5 +80,16 @@ describe('Bcrypt Adapter', () => {
 
       await expect(isValid).rejects.toThrow()
     })
+
+    test('Should return true when compare succeeds', async () => {
+      const { sut } = makeSut()
+
+      const isValid = await sut.compare({
+        plaintext: 'any_value',
+        digest: 'any_hash'
+      })
+
+      expect(isValid).toBeTruthy()
+    })
   })
 })
