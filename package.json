@@ -5,12 +5,11 @@
   "main": "src/main/index.js",
   "scripts": {
     "start": "nodemon src/main/index.js",
-    "test": "jest --colors --noStackTrace --passWithNoTests --runInBand --forceExit",
+    "test": "jest --passWithNoTests --noStackTrace --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:integration": "npm test -- --watch -c jest-integration-config.js",
-    "test:staged": "npm test -- --findRelatedTests --silent",
-    "test:ci": "npm test -- --coverage",
-    "postinstall": "link-module-alias"
+    "test:staged": "npm test -- --findRelatedTests",
+    "test:ci": "npm test -- --coverage"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +25,7 @@
     "validator": "^13.1.1"
   },
   "devDependencies": {
-    "@shelf/jest-mongodb": "^1.2.2",
+    "@shelf/jest-mongodb": "^1.1.3",
     "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
