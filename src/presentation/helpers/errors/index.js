@@ -1,0 +1,5 @@
+module.exports.invalidParamError = require('./invalid-param-error')
+module.exports.missingParamError = require('./missing-param-error')
+module.exports.EmailInUseError = require('./email-in-use-error')
+module.exports.ServerError = require('./server-error')
+module.exports.UnauthorizedError = require('./unauthorized-error')
