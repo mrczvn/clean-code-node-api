@@ -2,7 +2,8 @@ const signInController = require('./signin-controller')
 const {
   badRequest,
   missingParamError,
-  serverError
+  serverError,
+  unauthorizedError
 } = require('./signin-controller-protocols')
 const { AuthenticationSpy, ValidationSpy } = require('../../../test')
 
@@ -62,5 +63,15 @@ describe('SignIn Controller', () => {
     await sut.handle(mockFakeRequest)
 
     expect(authenticationSpy.authenticationParams).toEqual({ email, password })
+  })
+
+  test('Should return 401 if Authentication returns null', async () => {
+    const { sut, authenticationSpy } = makeSut()
+
+    authenticationSpy.account = null
+
+    const httpResponse = await sut.handle(mockFakeRequest)
+
+    expect(httpResponse).toEqual(unauthorizedError())
   })
 })
