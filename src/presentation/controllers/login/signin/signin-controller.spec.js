@@ -1,4 +1,8 @@
 const signInController = require('./signin-controller')
+const {
+  badRequest,
+  missingParamError
+} = require('./signin-controller-protocols')
 const { AuthenticationSpy, ValidationSpy } = require('../../../test')
 
 const mockRequest = () => ({
@@ -23,5 +27,15 @@ describe('SignIn Controller', () => {
     await sut.handle(mockFakeRequest)
 
     expect(validationSpy.input).toEqual(mockFakeRequest.body)
+  })
+
+  test('Should return 400 if Validation returns an error', async () => {
+    const { sut, validationSpy } = makeSut()
+
+    validationSpy.error = missingParamError('any_field')
+
+    const httpResponse = await sut.handle(mockFakeRequest)
+
+    expect(httpResponse).toEqual(badRequest(validationSpy.error))
   })
 })
