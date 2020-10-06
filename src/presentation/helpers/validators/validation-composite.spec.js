@@ -20,4 +20,15 @@ describe('Validation Composite', () => {
 
     expect(error).toEqual(missingParamError('any_field'))
   })
+
+  test('Should return the first error if more then one validation fails', () => {
+    const { sut, validationSpies } = makeSut()
+
+    validationSpies[0].error = new Error()
+    validationSpies[1].error = missingParamError('any_field')
+
+    const error = sut.validate({ field: 'any_field' })
+
+    expect(error).toEqual(new Error())
+  })
 })
