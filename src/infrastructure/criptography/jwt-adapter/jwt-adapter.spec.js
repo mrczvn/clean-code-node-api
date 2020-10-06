@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const jwtAdapter = require('./jwt-adapter')
 
 jest.spyOn(jwt, 'sign').mockReturnValue('any_token')
+jest.spyOn(jwt, 'verify').mockReturnValue('any_value')
 
 const makeSut = () => {
   const secret = 'TOP_SECRET'
@@ -29,6 +30,18 @@ describe('Jwt Adapter', () => {
       const token = sut.encrypt('any_value')
 
       expect(token).toBe('any_token')
+    })
+  })
+
+  describe('decrypt()', () => {
+    test('Should call verify with correct values', () => {
+      const { sut, secret } = makeSut()
+
+      const verifySpy = jest.spyOn(jwt, 'verify')
+
+      sut.decrypt('any_token')
+
+      expect(verifySpy).toHaveBeenCalledWith('any_token', secret)
     })
   })
 })
