@@ -4,7 +4,8 @@ const {
   serverError,
   missingParamError,
   forbidden,
-  EmailInUseError
+  EmailInUseError,
+  ok
 } = require('./signup-controller-protocols')
 const {
   AddAccountSpy,
@@ -107,5 +108,13 @@ describe('SignUp Controller', () => {
     const httpRequest = await sut.handle(mockFakeRequest)
 
     expect(httpRequest).toEqual(serverError(new Error()))
+  })
+
+  test('Should return 200 an account on success', async () => {
+    const { sut, authenticationSpy } = makeSut()
+
+    const httpRequest = await sut.handle(mockFakeRequest)
+
+    expect(httpRequest).toEqual(ok(authenticationSpy.account))
   })
 })
