@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const bcryptAdapter = require('./bcrypt-adapter')
 
 jest.spyOn(bcrypt, 'hash').mockResolvedValue('hash')
+jest.spyOn(bcrypt, 'compare').mockResolvedValue(true)
 
 const makeSut = () => {
   const salt = 12
@@ -41,6 +42,18 @@ describe('Bcrypt Adapter', () => {
       const hash = await sut.hash('any_value')
 
       expect(hash).toBe('hash')
+    })
+  })
+
+  describe('compare()', () => {
+    test('Should call compare with correct values', async () => {
+      const { sut } = makeSut()
+
+      const compareSpy = jest.spyOn(bcrypt, 'compare')
+
+      await sut.compare({ plaintext: 'any_value', digest: 'any_hash' })
+
+      expect(compareSpy).toHaveBeenCalledWith('any_value', 'any_hash')
     })
   })
 })
