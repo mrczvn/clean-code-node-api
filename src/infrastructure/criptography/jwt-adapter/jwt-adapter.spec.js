@@ -22,5 +22,13 @@ describe('Jwt Adapter', () => {
 
       expect(signSpy).toHaveBeenCalledWith({ id: 'any_value' }, secret)
     })
+
+    test('Should return a token on sign success', () => {
+      const { sut } = makeSut()
+
+      const token = sut.encrypt('any_value')
+
+      expect(token).toBe('any_token')
+    })
   })
 })
