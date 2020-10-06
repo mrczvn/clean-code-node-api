@@ -1,6 +1,7 @@
 const signUpController = require('./signup-controller')
 const {
   badRequest,
+  serverError,
   missingParamError
 } = require('./signup-controller-protocols')
 const {
@@ -12,6 +13,10 @@ const {
 const mockRequest = () => ({
   body: { name: 'any_name', email: 'any_email', password: 'any_password' }
 })
+
+const throwError = () => {
+  throw new Error()
+}
 
 const makeSut = () => {
   const validationSpy = ValidationSpy()
@@ -42,5 +47,15 @@ describe('SignUp Controller', () => {
     const httpResponse = await sut.handle(mockFakeRequest)
 
     expect(httpResponse).toEqual(badRequest(validationSpy.error))
+  })
+
+  test('Should return 400 if Validation throws', async () => {
+    const { sut, validationSpy } = makeSut()
+
+    jest.spyOn(validationSpy, 'validate').mockImplementationOnce(throwError)
+
+    const httpResponse = await sut.handle(mockFakeRequest)
+
+    expect(httpResponse).toEqual(serverError(new Error()))
   })
 })
