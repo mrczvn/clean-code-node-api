@@ -2,7 +2,9 @@ const signUpController = require('./signup-controller')
 const {
   badRequest,
   serverError,
-  missingParamError
+  missingParamError,
+  forbidden,
+  EmailInUseError
 } = require('./signup-controller-protocols')
 const {
   AddAccountSpy,
@@ -65,5 +67,15 @@ describe('SignUp Controller', () => {
     await sut.handle(mockFakeRequest)
 
     expect(addAccountSpy.addAccountParams).toEqual(mockFakeRequest.body)
+  })
+
+  test('Should return 401 if AddAccount returns null', async () => {
+    const { sut, addAccountSpy } = makeSut()
+
+    addAccountSpy.account = null
+
+    const httpResponse = await sut.handle(mockFakeRequest)
+
+    expect(httpResponse).toEqual(forbidden(EmailInUseError()))
   })
 })
